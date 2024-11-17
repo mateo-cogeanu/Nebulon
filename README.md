@@ -1,4 +1,4 @@
-# [Nebulon Encoder/Decoder](https://github.com/yourusername/nebulon-encoder-decoder)
+# [Nebulon Encoder/Decoder](https://htmlpreview.github.io/?https://github.com/mateo-cogeanu/Nebulon/blob/main/Nebulon_encoder_decoder.html)
 
 Nebulon Encoder/Decoder is a sleek, tabbed web interface for encoding and decoding images to/from the `.nbl` format. This web-based tool allows users to convert standard images into encoded files and decode them back to their original form using HTML, CSS, and JavaScript.
 
