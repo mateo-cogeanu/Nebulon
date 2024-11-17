@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nebulon Encoder/Decoder</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #00b8b8;
+            font-size: 36px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 15px 25px;
+            margin: 0 10px;
+            background-color: #222;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            transition: background-color 0.3s;
+        }
+        .tab:hover {
+            background-color: #00b8b8;
+        }
+        .tab.active {
+            background-color: #00b8b8;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+        }
+        input[type="file"] {
+            background-color: #222;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 4px;
+            width: 100%;
+            margin: 10px 0;
+        }
+        button {
+            background-color: #00b8b8;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #008c8c;
+        }
+        #downloadLink {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #00b8b8;
+        }
+        #decodedImageContainer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nebulon Encoder/Decoder</h1>
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+        <div class="tab active" data-tab="encoderTab">Encoder</div>
+        <div class="tab" data-tab="decoderTab">Decoder</div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content active" id="encoderTab">
+        <div class="container">
+            <input type="file" id="imageInput" accept="image/*" />
+            <button id="encodeButton">Encode Image</button>
+            <a id="downloadLink" href="#">Download Encoded .nbl</a>
+        </div>
+    </div>
+
+    <div class="tab-content" id="decoderTab">
+        <div class="container">
+            <input type="file" id="nblInput" accept=".nbl" />
+            <button id="decodeButton">Decode .nbl File</button>
+            <div id="decodedImageContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switch Logic
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Encoder Logic
+        const imageInput = document.getElementById('imageInput');
+        const encodeButton = document.getElementById('encodeButton');
+        const downloadLink = document.getElementById('downloadLink');
+
+        encodeButton.addEventListener('click', function () {
+            if (imageInput.files.length === 0) {
+                alert("Please select an image file!");
+                return;
+            }
+
+            const file = imageInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                const imageData = event.target.result;
+                const base64Image = imageData.split(',')[1];
+                const nebulonEncoded = base64Image.split('').reverse().join('');
+                const nblBlob = new Blob([nebulonEncoded], { type: 'application/octet-stream' });
+                const nblUrl = URL.createObjectURL(nblBlob);
+
+                downloadLink.href = nblUrl;
+                downloadLink.download = 'image.nbl';
+                downloadLink.style.display = 'block';
+                downloadLink.textContent = 'Download Encoded .nbl';
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        // Decoder Logic
+        const nblInput = document.getElementById('nblInput');
+        const decodeButton = document.getElementById('decodeButton');
+        const decodedImageContainer = document.getElementById('decodedImageContainer');
+
+        decodeButton.addEventListener('click', function () {
+            if (nblInput.files.length === 0) {
+                alert("Please select a .nbl file!");
+                return;
+            }
+
+            const file = nblInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                const encodedData = event.target.result;
+                const decodedData = encodedData.split('').reverse().join('');
+                const imageSrc = `data:image/png;base64,${decodedData}`;
+                
+                const img = document.createElement('img');
+                img.src = imageSrc;
+                img.alt = 'Decoded Image';
+                decodedImageContainer.innerHTML = '';
+                decodedImageContainer.appendChild(img);
+            };
+
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>
